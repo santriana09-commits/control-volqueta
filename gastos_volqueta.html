@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Volqueta App</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3249;
+    --accent-ing: #27AE60;
+    --accent-gas: #f5a623;
+    --text: #eef0f8;
+    --muted: #6b7094;
+    --success: #2ecc71;
+    --error: #e74c3c;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    width: 100%;
+    padding: 24px 24px 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .truck-icon { font-size: 26px; }
+  .header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .header p { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    width: 100%;
+    max-width: 480px;
+    gap: 0;
+    margin: 0 auto;
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+  .tab.active-ing { color: var(--accent-ing); border-bottom-color: var(--accent-ing); }
+  .tab.active-gas { color: var(--accent-gas); border-bottom-color: var(--accent-gas); }
+
+  /* Panels */
+  .panel { display: none; width: 100%; max-width: 480px; padding: 24px 20px 48px; flex-direction: column; gap: 16px; }
+  .panel.active { display: flex; }
+
+  /* Field */
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 15px 18px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field textarea { resize: none; height: 80px; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--active-accent, var(--accent-ing));
+    background: var(--surface2);
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
+  .field select option { background: var(--surface2); }
+
+  .panel-ing .field input:focus,
+  .panel-ing .field select:focus,
+  .panel-ing .field textarea:focus { border-color: var(--accent-ing); }
+
+  .panel-gas .field input:focus,
+  .panel-gas .field select:focus,
+  .panel-gas .field textarea:focus { border-color: var(--accent-gas); }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 18px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 14px;
+  }
+  .prefix-wrap { position: relative; }
+  .prefix-wrap input { padding-left: 42px; }
+  .prefix {
+    position: absolute;
+    left: 18px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* Botones */
+  .btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .btn:active { transform: scale(0.97); opacity: 0.9; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-ing { background: var(--accent-ing); color: #fff; }
+  .btn-gas { background: var(--accent-gas); color: #0f1117; }
+
+  /* Status */
+  .status {
+    padding: 13px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+  .status.success { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.3); color: var(--success); display: flex; }
+  .status.error   { background: rgba(231,76,60,0.12);  border: 1px solid rgba(231,76,60,0.3);  color: var(--error);   display: flex; }
+
+  /* Historial */
+  .history-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideIn 0.3s ease;
+  }
+  .hi-left { display: flex; flex-direction: column; gap: 2px; }
+  .hi-desc { font-size: 14px; font-weight: 500; }
+  .hi-meta { font-size: 11px; color: var(--muted); }
+  .hi-valor { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+  .hi-valor.ing { color: var(--accent-ing); }
+  .hi-valor.gas { color: var(--accent-gas); }
+  .empty { font-size: 13px; color: var(--muted); text-align: center; padding: 16px; font-style: italic; }
+
+  .spinner {
+    width: 17px; height: 17px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-gas .spinner { border-color: rgba(15,17,23,0.3); border-top-color: #0f1117; }
+
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes fadeIn  { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span class="truck-icon">🚛</span>
+    <div>
+      <h1>CONTROL VOLQUETA</h1>
+      <p>International 8900 - Doble troque</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab" id="tab-ing" onclick="switchTab('ing')">💵 Ingresos</div>
+    <div class="tab active-gas" id="tab-gas" onclick="switchTab('gas')">💸 Gastos</div>
+  </div>
+</div>
+
+<!-- PANEL INGRESOS -->
+<div class="panel panel-ing" id="panel-ing">
+
+  <div class="field">
+    <label>Fecha</label>
+    <input type="date" id="ing-fecha">
+  </div>
+
+  <div class="field">
+    <label>Destino / Ruta</label>
+    <input type="text" id="ing-destino" placeholder="Ej: Planta → Obra Av. 68">
+  </div>
+
+  <div class="field">
+    <label>Material cargado</label>
+    <input type="text" id="ing-material" placeholder="Ej: Asfalto, Gravilla, Agregado...">
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label>Valor viaje</label>
+      <div class="prefix-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="ing-valor" placeholder="Ej: 280" min="0" inputmode="numeric">
+      </div>
+    </div>
+    <div class="field">
+      <label>Peso (ton)</label>
+      <input type="number" id="ing-peso" placeholder="Ej: 18" min="0" inputmode="decimal">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Observaciones <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+    <textarea id="ing-obs" placeholder="Ej: Viaje corto, cliente especial..."></textarea>
+  </div>
+
+  <div class="divider"></div>
+  <div class="status" id="ing-status"></div>
+
+  <button class="btn btn-ing" id="btn-ing" onclick="guardarIngreso()">
+    <div class="spinner" id="ing-spinner"></div>
+    <span id="ing-btn-text">GUARDAR VIAJE</span>
+  </button>
+
+  <div class="divider"></div>
+  <p class="history-title">Registrados esta sesión</p>
+  <div class="history-list" id="ing-historial">
+    <p class="empty">Aún no has registrado viajes</p>
+  </div>
+
+</div>
+
+<!-- PANEL GASTOS -->
+<div class="panel panel-gas active" id="panel-gas">
+
+  <div class="field">
+    <label>Fecha</label>
+    <input type="date" id="gas-fecha">
+  </div>
+
+  <div class="field">
+    <label>Descripción</label>
+    <input type="text" id="gas-desc" placeholder="Ej: Cambio de aceite motor">
+  </div>
+
+  <div class="field">
+    <label>Categoría</label>
+    <div class="select-wrap">
+      <select id="gas-cat">
+        <option value="" disabled selected>Selecciona una categoría</option>
+        <option>Mantenimiento</option>
+        <option>Reparación</option>
+        <option>Combustible</option>
+        <option>Documentos</option>
+        <option>Llantas</option>
+        <option>Otros</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Valor</label>
+    <div class="prefix-wrap">
+      <span class="prefix">$</span>
+      <input type="number" id="gas-valor" placeholder="Ej: 350 = $350.000" min="0" inputmode="numeric">
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="status" id="gas-status"></div>
+
+  <button class="btn btn-gas" id="btn-gas" onclick="guardarGasto()">
+    <div class="spinner" id="gas-spinner"></div>
+    <span id="gas-btn-text">GUARDAR GASTO</span>
+  </button>
+
+  <div class="divider"></div>
+  <p class="history-title">Registrados esta sesión</p>
+  <div class="history-list" id="gas-historial">
+    <p class="empty">Aún no has registrado gastos</p>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwufVzGjbvOCo7m3Y2A8v-0QSU6TNH7DJBa2Wsd1Iz4OimKoXj-nJZXo9qtN2rVjdvqpw/exec";
+  const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1JDJ9ZCjV36tKdwB1W1BOLonuI_9tMq6oXJF6Ex_wNHg/edit";
+
+  // Fecha de hoy por defecto en ambos campos
+  const hoy = new Date();
+  const fechaHoy = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+  document.getElementById('ing-fecha').value = fechaHoy;
+  document.getElementById('gas-fecha').value = fechaHoy;
+
+  function switchTab(tab) {
+    document.getElementById('tab-ing').className = 'tab' + (tab==='ing' ? ' active-ing' : '');
+    document.getElementById('tab-gas').className = 'tab' + (tab==='gas' ? ' active-gas' : '');
+    document.getElementById('panel-ing').className = 'panel panel-ing' + (tab==='ing' ? ' active' : '');
+    document.getElementById('panel-gas').className = 'panel panel-gas' + (tab==='gas' ? ' active' : '');
+  }
+
+  function formatFecha(val) {
+    const [y,m,d] = val.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function formatPesos(n) {
+    return '$' + Number(n).toLocaleString('es-CO');
+  }
+
+  function mostrarStatus(tipo, id, msg) {
+    const el = document.getElementById(id);
+    el.className = 'status ' + tipo;
+    el.innerHTML = (tipo === 'success' ? '✓ ' : '✗ ') + msg;
+    setTimeout(() => { el.className = 'status'; }, 4000);
+  }
+
+  function setLoading(tipo, on) {
+    const btn     = document.getElementById('btn-' + tipo);
+    const spinner = document.getElementById(tipo + '-spinner');
+    const txt     = document.getElementById(tipo + '-btn-text');
+    btn.disabled = on;
+    spinner.style.display = on ? 'block' : 'none';
+    txt.textContent = on ? 'GUARDANDO...' : (tipo === 'ing' ? 'GUARDAR VIAJE' : 'GUARDAR GASTO');
+  }
+
+  function agregarHistorial(tipo, item) {
+    const lista = document.getElementById(tipo + '-historial');
+    // Quitar mensaje vacío si existe
+    const empty = lista.querySelector('.empty');
+    if (empty) empty.remove();
+
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="hi-left">
+        <span class="hi-desc">${item.desc}</span>
+        <span class="hi-meta">${item.meta}</span>
+      </div>
+      <span class="hi-valor ${tipo}">${formatPesos(item.valor)}</span>
+    `;
+    lista.insertBefore(div, lista.firstChild);
+    // Máximo 5
+    while (lista.children.length > 5) lista.removeChild(lista.lastChild);
+  }
+
+  async function enviar(payload) {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    return await resp.json();
+  }
+
+  async function guardarIngreso() {
+    const fecha    = document.getElementById('ing-fecha').value;
+    const destino  = document.getElementById('ing-destino').value.trim();
+    const material = document.getElementById('ing-material').value.trim();
+    const valor    = document.getElementById('ing-valor').value;
+    const peso     = document.getElementById('ing-peso').value;
+    const obs      = document.getElementById('ing-obs').value.trim();
+
+    if (!fecha || !destino || !material || !valor) {
+      mostrarStatus('error', 'ing-status', 'Completa fecha, destino, material y valor.');
+      return;
+    }
+    if (Number(valor) <= 0) {
+      mostrarStatus('error', 'ing-status', 'El valor debe ser mayor a cero.');
+      return;
+    }
+
+    setLoading('ing', true);
+    const valorReal = Number(valor) * 1000;
+
+    try {
+      const data = await enviar({
+        tipo: 'ingreso',
+        sheetUrl: SHEET_URL,
+        fecha: formatFecha(fecha),
+        destino,
+        material,
+        valor: valorReal,
+        peso: peso || '',
+        obs
+      });
+
+      if (data.status === 'ok') {
+        mostrarStatus('success', 'ing-status', '¡Viaje guardado en tu Sheets!');
+        agregarHistorial('ing', {
+          desc: destino,
+          meta: material + ' · ' + formatFecha(fecha),
+          valor: valorReal
+        });
+        document.getElementById('ing-destino').value = '';
+        document.getElementById('ing-material').value = '';
+        document.getElementById('ing-valor').value = '';
+        document.getElementById('ing-peso').value = '';
+        document.getElementById('ing-obs').value = '';
+      } else {
+        mostrarStatus('error', 'ing-status', 'Error: ' + (data.mensaje || 'intenta de nuevo'));
+      }
+    } catch(e) {
+      mostrarStatus('error', 'ing-status', 'No se pudo conectar. Revisa tu internet.');
+    }
+    setLoading('ing', false);
+  }
+
+  async function guardarGasto() {
+    const fecha = document.getElementById('gas-fecha').value;
+    const desc  = document.getElementById('gas-desc').value.trim();
+    const cat   = document.getElementById('gas-cat').value;
+    const valor = document.getElementById('gas-valor').value;
+
+    if (!fecha || !desc || !cat || !valor) {
+      mostrarStatus('error', 'gas-status', 'Completa todos los campos antes de guardar.');
+      return;
+    }
+    if (Number(valor) <= 0) {
+      mostrarStatus('error', 'gas-status', 'El valor debe ser mayor a cero.');
+      return;
+    }
+
+    setLoading('gas', true);
+    const valorReal = Number(valor) * 1000;
+
+    try {
+      const data = await enviar({
+        tipo: 'gasto',
+        sheetUrl: SHEET_URL,
+        fecha: formatFecha(fecha),
+        descripcion: desc,
+        categoria: cat,
+        valor: valorReal
+      });
+
+      if (data.status === 'ok') {
+        mostrarStatus('success', 'gas-status', '¡Gasto guardado en tu Sheets!');
+        agregarHistorial('gas', {
+          desc,
+          meta: cat + ' · ' + formatFecha(fecha),
+          valor: valorReal
+        });
+        document.getElementById('gas-desc').value = '';
+        document.getElementById('gas-cat').value = '';
+        document.getElementById('gas-valor').value = '';
+      } else {
+        mostrarStatus('error', 'gas-status', 'Error: ' + (data.mensaje || 'intenta de nuevo'));
+      }
+    } catch(e) {
+      mostrarStatus('error', 'gas-status', 'No se pudo conectar. Revisa tu internet.');
+    }
+    setLoading('gas', false);
+  }
+</script>
+</body>
+</html>
