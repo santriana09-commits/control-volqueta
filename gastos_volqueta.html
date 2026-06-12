@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Control Volqueta</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #222536;
+    --border: #2e3249; --accent: #f5a623; --text: #eef0f8;
+    --muted: #6b7094; --success: #2ecc71; --error: #e74c3c; --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+  .header { width: 100%; padding: 24px 24px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .truck-icon { font-size: 26px; }
+  .header h1 { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--text); }
+  .header p { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .main { width: 100%; max-width: 480px; padding: 24px 20px 48px; display: flex; flex-direction: column; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .field input, .field select {
+    width: 100%; padding: 15px 18px; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 16px; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); background: var(--surface2); }
+  .field input::placeholder { color: var(--muted); }
+  .field select option { background: var(--surface2); }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: '▾'; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .prefix-wrap { position: relative; }
+  .prefix-wrap input { padding-left: 42px; }
+  .prefix { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--muted); font-family: 'Space Mono', monospace; font-size: 14px; pointer-events: none; }
+  .divider { height: 1px; background: var(--border); margin: 4px 0; }
+  .btn { width: 100%; padding: 18px; background: var(--accent); color: #0f1117; border: none;
+    border-radius: var(--radius); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .status { padding: 13px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+    display: none; align-items: center; gap: 10px; animation: fadeIn 0.3s ease; }
+  .status.success { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.3); color: var(--success); display: flex; }
+  .status.error { background: rgba(231,76,60,0.12); border: 1px solid rgba(231,76,60,0.3); color: var(--error); display: flex; }
+  .history-title { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; animation: slideIn 0.3s ease; }
+  .hi-left { display: flex; flex-direction: column; gap: 2px; }
+  .hi-desc { font-size: 14px; font-weight: 500; }
+  .hi-meta { font-size: 11px; color: var(--muted); }
+  .hi-valor { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); }
+  .empty { font-size: 13px; color: var(--muted); text-align: center; padding: 16px; font-style: italic; }
+  .spinner { width: 17px; height: 17px; border: 2px solid rgba(15,17,23,0.3); border-top-color: #0f1117;
+    border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <span class="truck-icon">🚛</span>
+    <div>
+      <h1>CONTROL VOLQUETA</h1>
+      <p>International 8900 - Doble troque</p>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="field">
+    <label>Fecha</label>
+    <input type="date" id="gas-fecha">
+  </div>
+  <div class="field">
+    <label>Descripción</label>
+    <input type="text" id="gas-desc" placeholder="Ej: Cambio de aceite motor">
+  </div>
+  <div class="field">
+    <label>Categoría</label>
+    <div class="select-wrap">
+      <select id="gas-cat">
+        <option value="" disabled selected>Selecciona una categoría</option>
+        <option>Mantenimiento</option>
+        <option>Reparación</option>
+        <option>Combustible</option>
+        <option>Documentos</option>
+        <option>Llantas</option>
+        <option>Otros</option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <label>Valor</label>
+    <div class="prefix-wrap">
+      <span class="prefix">$</span>
+      <input type="number" id="gas-valor" placeholder="Ej: 350 = $350.000" min="0" inputmode="numeric">
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="status" id="gas-status"></div>
+  <button class="btn" id="btn-gas" onclick="guardarGasto()">
+    <div class="spinner" id="gas-spinner"></div>
+    <span id="gas-btn-text">GUARDAR GASTO</span>
+  </button>
+  <div class="divider"></div>
+  <p class="history-title">Registrados esta sesión</p>
+  <div class="history-list" id="gas-historial">
+    <p class="empty">Aún no has registrado gastos</p>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwufVzGjbvOCo7m3Y2A8v-0QSU6TNH7DJBa2Wsd1Iz4OimKoXj-nJZXo9qtN2rVjdvqpw/exec";
+  const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1JDJ9ZCjV36tKdwB1W1BOLonuI_9tMq6oXJF6Ex_wNHg/edit";
+
+  const hoy = new Date();
+  document.getElementById('gas-fecha').value =
+    `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+
+  function formatFecha(val) { const [y,m,d]=val.split('-'); return `${d}/${m}/${y}`; }
+  function formatPesos(n) { return '$'+Number(n).toLocaleString('es-CO'); }
+
+  function mostrarStatus(id, tipo, msg) {
+    const el = document.getElementById(id);
+    el.className = 'status ' + tipo;
+    el.innerHTML = (tipo==='success'?'✓ ':'✗ ') + msg;
+    setTimeout(()=>{ el.className='status'; }, 4000);
+  }
+  function setLoading(on) {
+    document.getElementById('btn-gas').disabled = on;
+    document.getElementById('gas-spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('gas-btn-text').textContent = on ? 'GUARDANDO...' : 'GUARDAR GASTO';
+  }
+  function agregarHistorial(item) {
+    const lista = document.getElementById('gas-historial');
+    const empty = lista.querySelector('.empty');
+    if (empty) empty.remove();
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `<div class="hi-left"><span class="hi-desc">${item.desc}</span><span class="hi-meta">${item.cat} · ${item.fecha}</span></div><span class="hi-valor">${formatPesos(item.valor)}</span>`;
+    lista.insertBefore(div, lista.firstChild);
+    while (lista.children.length > 5) lista.removeChild(lista.lastChild);
+  }
+  async function guardarGasto() {
+    const fecha = document.getElementById('gas-fecha').value;
+    const desc  = document.getElementById('gas-desc').value.trim();
+    const cat   = document.getElementById('gas-cat').value;
+    const valor = document.getElementById('gas-valor').value;
+    if (!fecha||!desc||!cat||!valor) { mostrarStatus('gas-status','error','Completa todos los campos.'); return; }
+    if (Number(valor)<=0) { mostrarStatus('gas-status','error','El valor debe ser mayor a cero.'); return; }
+    setLoading(true);
+    const valorReal = Number(valor)*1000;
+    try {
+      const resp = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({
+        tipo:'gasto', sheetUrl:SHEET_URL, fecha:formatFecha(fecha), descripcion:desc, categoria:cat, valor:valorReal
+      })});
+      const data = await resp.json();
+      if (data.status==='ok') {
+        mostrarStatus('gas-status','success','¡Gasto guardado!');
+        agregarHistorial({desc, cat, fecha:formatFecha(fecha), valor:valorReal});
+        document.getElementById('gas-desc').value='';
+        document.getElementById('gas-cat').value='';
+        document.getElementById('gas-valor').value='';
+      } else { mostrarStatus('gas-status','error','Error: '+(data.mensaje||'intenta de nuevo')); }
+    } catch(e) { mostrarStatus('gas-status','error','Sin conexión. Revisa tu internet.'); }
+    setLoading(false);
+  }
+</script>
+</body>
+</html>
